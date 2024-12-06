@@ -528,6 +528,9 @@ class pandarallel:
             DataFrame.Map,
             progress_bars_in_user_defined_function_multiply_by_number_of_columns,
         )
+        pd.DataFrame.parallel_agg = parallelize(
+            nb_workers, DataFrame.Agg, progress_bars_in_user_defined_function
+        )
         # applymap is outdated, might get removed in future
         pd.DataFrame.parallel_applymap = parallelize(
             nb_workers,
