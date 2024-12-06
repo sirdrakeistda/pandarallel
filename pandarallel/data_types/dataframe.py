@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Iterable, Iterator
+from typing import Any, Callable, Dict, List, Iterable, Iterator
 from types import GeneratorType
 
 import pandas as pd
