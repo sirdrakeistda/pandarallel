@@ -50,6 +50,7 @@ class DataFrame:
             axis = 0 if isinstance(datas[0], pd.Series) else 1 - extra["axis"]
             return pd.concat(datas, copy=False, axis=axis)
 
+    # applymap is outdated might be removed in future
     class ApplyMap(DataType):
         @staticmethod
         def get_chunks(
@@ -67,6 +68,31 @@ class DataFrame:
             extra: Dict[str, Any],
         ) -> pd.DataFrame:
             return data.applymap(user_defined_function)
+
+        @staticmethod
+        def reduce(
+            datas: Iterable[pd.DataFrame], extra: Dict[str, Any]
+        ) -> pd.DataFrame:
+            return pd.concat(datas, copy=False)
+
+
+    class Map(DataType):
+        @staticmethod
+        def get_chunks(
+            nb_workers: int, data: pd.DataFrame, **kwargs
+        ) -> Iterator[pd.DataFrame]:
+            for chunk_ in chunk(data.shape[0], nb_workers):
+                yield data.iloc[chunk_]
+
+        @staticmethod
+        def work(
+            data: pd.DataFrame,
+            user_defined_function: Callable,
+            user_defined_function_args: tuple,
+            user_defined_function_kwargs: Dict[str, Any],
+            extra: Dict[str, Any],
+        ) -> pd.DataFrame:
+            return data.map(user_defined_function)
 
         @staticmethod
         def reduce(
