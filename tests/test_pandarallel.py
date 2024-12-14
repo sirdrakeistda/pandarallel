@@ -54,6 +54,15 @@ def func_dataframe_applymap(request):
         request.param
     ]
 
+@pytest.fixture(params=("named", "anonymous"))
+def func_dataframe_map(request):
+    def func(x):
+        return math.sin(x**2) - math.cos(x**2)
+
+    return dict(named=func, anonymous=lambda x: math.sin(x**2) - math.cos(x**2))[
+        request.param
+    ]
+
 
 @pytest.fixture(params=("named", "anonymous"))
 def func_series_map(request):
@@ -234,6 +243,16 @@ def test_dataframe_applymap(pandarallel_init, func_dataframe_applymap, df_size):
 
     res = df.applymap(func_dataframe_applymap)
     res_parallel = df.parallel_applymap(func_dataframe_applymap)
+    assert res.equals(res_parallel)
+
+def test_dataframe_map(pandarallel_init, func_dataframe_map, df_size):
+    df = pd.DataFrame(
+        dict(a=np.random.randint(1, 8, df_size), b=np.random.rand(df_size))
+    )
+    df.index = [item / 10 for item in df.index]
+
+    res = df.map(func_dataframe_map)
+    res_parallel = df.parallel_map(func_dataframe_map)
     assert res.equals(res_parallel)
 
 
